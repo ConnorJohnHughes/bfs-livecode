@@ -1,15 +1,27 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 public class Search {
     public static void main(String[] args) {
-        Location myLocations = new Location(5,88);
+        // Location myLocations = new Location(5,88);
 
-        System.out.println(myLocations);
+
+        // System.out.println(myLocations);
+        char[][] grid = {
+            {'o', 'o', 'o', 'o', 'c', 'w', 'c', 'o'},
+            {'w', 'o', 'o', 'w', 'w', 'c', 'w', 'o'},
+            {'o', 'o', 'o', 'o', 'R', 'w', 'o', 'o'},
+            {'o', 'o', 'w', 'w', 'w', 'o', 'o', 'o'},
+            {'o', 'o', 'o', 'o', 'c', 'o', 'o', 'o'}
+        };
+
+        System.out.println(nearestCheese(grid));
     } 
     
     
@@ -50,24 +62,42 @@ public class Search {
         queue.add(start);
 
         Set<Location> visited = new HashSet<>();
-
+        Map<Location, Location> prevs = new HashMap<>();
+       
 
         
         while(!queue.isEmpty()){
             Location current = queue.poll();
-            if(visited.contains(current)) continue;
+             visited.add(current);
 
             if(maze[current.row()][current.col()] == 'c'){
+                List<Location> path = new ArrayList<>();
+
+                Location pointer = current;
+                while(!pointer.equals(start)){
+                    path.add(pointer);
+                    pointer = prevs.get(pointer);
+                }
+
+                path.add(start);
+
+                System.out.println(path.reversed());
+
                 return current;
             }
-            visited.add(current);
 
             for(Location neighbor : neighbors(maze, current)){
-                queue.add(neighbor);
+                if(!visited.contains(neighbor)){
+                    visited.add(neighbor);
+                    queue.add(neighbor);
+                    prevs.put(neighbor, current);
+                }
+                
             }        
 
         }
-
+        // System.out.println(start);
+        
         throw new HungryRatException();
 
     }
@@ -79,7 +109,7 @@ public class Search {
             {-1,0}, //up
             {1,0}, //down
             {0,-1}, //left
-            {1,0} //right
+            {0,1} //right
         };
 
         for (int[] move : moves) {
